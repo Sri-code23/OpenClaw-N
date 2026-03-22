@@ -2,7 +2,7 @@
 
 ```json
 {
-    "version": "2.0.0",
-    "Version_name":"Beta"
+    "version": "4.0.0",
+    "Version_name":"Delta"
 }
 ```
