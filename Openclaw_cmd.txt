@@ -1,0 +1,26 @@
+cd Downloads
+mkdir OpenClaw Test
+cd OpenClaw
+npm i -g openclaw
+openclaw onboard
+openclaw stop
+openclaw daemon stop
+openclaw
+openclaw daemon start
+openclaw channels login 
+openclaw channels *
+openclaw channels
+openclaw channels list
+openclaw channels add --channel telegram --token 8242336162:AAHy2cWA__QQP8k8wj6FdoqsbQxJzlJZLcY
+openclaw pairing approve telegram CTUXL5TJ
+openclaw config set GOOGLE_API_KEY AIzaSyCJICZ_yN9DAgLjFlM9xxLorbkpQBSNY1U
+openclaw doctor --fix
+openclaw config
+openclaw restart
+openclaw daemon start
+openclaw config
+openclaw stop daemon
+openclaw stop
+openclaw config
+doskey /history
+doskey /history > Openclaw_cmd.txt

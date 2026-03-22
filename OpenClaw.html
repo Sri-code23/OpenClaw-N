@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw — Complete Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f11;
+    --bg2: #13161a;
+    --bg3: #1a1e24;
+    --bg4: #21262e;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaed;
+    --text2: #9aa0ab;
+    --text3: #5f6570;
+    --accent: #4af0c4;
+    --accent2: #2dd4a0;
+    --accent-glow: rgba(74,240,196,0.12);
+    --accent-glow2: rgba(74,240,196,0.06);
+    --red: #ff6b6b;
+    --amber: #ffc14d;
+    --blue: #5b9cf6;
+    --red-bg: rgba(255,107,107,0.08);
+    --amber-bg: rgba(255,193,77,0.08);
+    --blue-bg: rgba(91,156,246,0.08);
+    --green-bg: rgba(74,240,196,0.08);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* Subtle grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .logo {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-glow);
+    border: 1px solid rgba(74,240,196,0.25);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .header h1 span { color: var(--accent); }
+
+  .header-meta {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text3);
+  }
+
+  .header-meta .dot { color: var(--border2); }
+
+  .version-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--green-bg);
+    border: 1px solid rgba(74,240,196,0.2);
+    color: var(--accent);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: var(--mono);
+  }
+
+  .version-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* Nav */
+  .nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    padding: 6px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .nav button {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 400;
+    padding: 7px 16px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+
+  .nav button:hover { background: var(--bg3); color: var(--text2); }
+  .nav button.active { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(74,240,196,0.2); }
+
+  /* Section */
+  .section { display: none; animation: fadeIn .2s ease; }
+  .section.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-header { margin-bottom: 24px; }
+  .section-header h2 { font-size: 20px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; margin-bottom: 4px; }
+  .section-header p { font-size: 14px; color: var(--text3); }
+
+  /* Cards */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    transition: border-color .15s;
+  }
+  .card:hover { border-color: var(--border2); }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+  .card p { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+  /* Metrics */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; margin-bottom: 24px; }
+  .metric { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .metric-value { font-size: 18px; font-weight: 600; color: var(--text); }
+  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+  /* Command */
+  .cmd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin: 8px 0;
+    gap: 12px;
+  }
+  .cmd code {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    flex: 1;
+  }
+  .cmd-copy {
+    font-family: var(--sans);
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .cmd-copy:hover { border-color: var(--accent); color: var(--accent); }
+  .cmd-copy.copied { border-color: var(--accent); color: var(--accent); }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-family: var(--mono);
+  }
+  .badge-green { background: var(--green-bg); color: var(--accent); border: 1px solid rgba(74,240,196,0.2); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(255,193,77,0.2); }
+  .badge-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(255,107,107,0.2); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(91,156,246,0.2); }
+
+  /* Alerts */
+  .tip { background: var(--green-bg); border: 1px solid rgba(74,240,196,0.15); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 10px 14px; margin: 12px 0; font-size: 13px; color: var(--accent2); line-height: 1.6; }
+  .warn { background: var(--amber-bg); border: 1px solid rgba(255,193,77,0.15); border-left: 3px solid var(--amber); border-radius: 0 var(--radius) var(--radius) 0; padding: 10px 14px; margin: 12px 0; font-size: 13px; color: var(--amber); line-height: 1.6; }
+  .danger { background: var(--red-bg); border: 1px solid rgba(255,107,107,0.15); border-left: 3px solid var(--red); border-radius: 0 var(--radius) var(--radius) 0; padding: 10px 14px; margin: 12px 0; font-size: 13px; color: var(--red); line-height: 1.6; }
+
+  /* Steps */
+  .steps { }
+  .step { display: flex; gap: 16px; margin-bottom: 20px; }
+  .step-num {
+    width: 30px; height: 30px; min-width: 30px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 500; color: var(--accent);
+    font-family: var(--mono);
+  }
+  .step-body { flex: 1; padding-top: 4px; }
+  .step-body strong { font-size: 14px; font-weight: 500; color: var(--text); display: block; margin-bottom: 5px; }
+  .step-body p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* Table */
+  .ref-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .ref-table th { text-align: left; padding: 8px 14px; font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; border-bottom: 1px solid var(--border); }
+  .ref-table td { padding: 10px 14px; color: var(--text2); border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+  .ref-table tr:last-child td { border-bottom: none; }
+  .ref-table td:first-child { font-family: var(--mono); font-size: 12px; color: var(--accent); white-space: nowrap; }
+  .table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 16px; }
+
+  /* Flow diagram */
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 24px 0; }
+  .flow-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius); padding: 12px 28px; font-size: 13px; font-weight: 500; color: var(--text2); text-align: center; min-width: 280px; }
+  .flow-box.hl { background: var(--accent-glow); border-color: rgba(74,240,196,0.25); color: var(--accent); }
+  .flow-arrow { color: var(--text3); padding: 6px 0; font-size: 18px; }
+
+  /* Error accordion */
+  .err-item { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+  .err-head { padding: 12px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background .15s; }
+  .err-head:hover { background: var(--bg3); }
+  .err-head-left { display: flex; align-items: center; gap: 10px; }
+  .err-head span { font-size: 13px; font-weight: 500; color: var(--text); }
+  .err-toggle { font-size: 18px; color: var(--text3); transition: transform .2s; }
+  .err-toggle.open { transform: rotate(45deg); color: var(--accent); }
+  .err-body { padding: 0 16px; max-height: 0; overflow: hidden; transition: max-height .3s ease, padding .3s ease; }
+  .err-body.open { max-height: 300px; padding: 12px 16px; }
+  .err-code { font-family: var(--mono); font-size: 12px; background: var(--bg3); border: 1px solid var(--border); padding: 10px 12px; border-radius: 8px; color: var(--red); margin: 8px 0; line-height: 1.7; }
+  .err-body p { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+  /* Use cases */
+  .uc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 10px; margin-bottom: 20px; }
+  .uc-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; transition: border-color .15s, background .15s; cursor: default; }
+  .uc-card:hover { border-color: var(--border2); background: var(--bg3); }
+  .uc-icon { font-size: 22px; margin-bottom: 10px; }
+  .uc-card strong { font-size: 13px; font-weight: 500; color: var(--text); display: block; margin-bottom: 5px; }
+  .uc-card p { font-size: 12px; color: var(--text3); line-height: 1.6; }
+
+  /* API grid */
+  .api-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: 10px; margin-bottom: 20px; }
+  .api-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; transition: border-color .15s; }
+  .api-card.best { border-color: rgba(74,240,196,0.3); background: var(--accent-glow2); }
+  .api-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .api-url { font-size: 11px; font-family: var(--mono); color: var(--text3); margin-bottom: 8px; }
+  .api-card p { font-size: 12px; color: var(--text3); line-height: 1.55; }
+
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  strong.hl { color: var(--text); font-weight: 500; }
+  code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+
+  .sub-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 10px; }
+
+  /* Footer */
+  .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: var(--text3); }
+  .footer span { color: var(--accent); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">🦞</div>
+      <h1>Open<span>Claw</span> Guide</h1>
+      <div class="version-badge">v2026.3.13</div>
+    </div>
+    <div class="header-meta">
+      <span>Complete reference</span>
+      <span class="dot">·</span>
+      <span>Install → Setup → Use → Debug</span>
+      <span class="dot">·</span>
+      <span>March 2026</span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav">
+    <button class="active" onclick="show('overview',this)">Overview</button>
+    <button onclick="show('install',this)">Install & setup</button>
+    <button onclick="show('telegram',this)">Telegram bot</button>
+    <button onclick="show('whatsapp',this)">WhatsApp</button>
+    <button onclick="show('apikeys',this)">API keys</button>
+    <button onclick="show('usecases',this)">Use cases</button>
+    <button onclick="show('commands',this)">Commands</button>
+    <button onclick="show('errors',this)">Errors & fixes</button>
+    <button onclick="show('tips',this)">Pro tips</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="sec-overview" class="section active">
+    <div class="section-header">
+      <h2>What is OpenClaw?</h2>
+      <p>A free, open-source autonomous AI agent — runs on your laptop, controlled from your phone</p>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Type</div><div class="metric-value">AI Agent</div><div class="metric-sub">Autonomous</div></div>
+      <div class="metric"><div class="metric-label">Cost</div><div class="metric-value">Free</div><div class="metric-sub">Open source</div></div>
+      <div class="metric"><div class="metric-label">Dashboard</div><div class="metric-value" style="font-size:14px;padding-top:3px">127.0.0.1:18789</div><div class="metric-sub">Browser</div></div>
+      <div class="metric"><div class="metric-label">Version</div><div class="metric-value">2026.3.13</div><div class="metric-sub">Latest stable</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">How it works</div>
+      <p>OpenClaw runs silently in the background on your laptop/PC as a daemon. You interact with it through messaging apps (Telegram, WhatsApp, Discord) on your phone, or through the browser dashboard. It uses an AI model via API key to understand your requests and execute tasks.</p>
+    </div>
+
+    <div class="flow">
+      <div class="flow-box">📱 Your phone (Telegram / WhatsApp)</div>
+      <div class="flow-arrow">↕</div>
+      <div class="flow-box hl">⚙️ OpenClaw daemon — running on laptop</div>
+      <div class="flow-arrow">↕</div>
+      <div class="flow-box">🤖 AI model API (Groq / Gemini / OpenAI)</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Where things live</div>
+      <p>
+        <strong class="hl">Installed on:</strong> Your laptop/PC (runs as a background process)<br>
+        <strong class="hl">Used from:</strong> Phone via Telegram/WhatsApp, or browser at 127.0.0.1:18789<br>
+        <strong class="hl">Config stored at:</strong> <code>~/.openclaw/</code> (Linux/Mac) &nbsp;·&nbsp; <code>C:\Users\YourName\.openclaw\</code> (Windows)
+      </p>
+    </div>
+
+    <div class="tip">For daily use, OpenClaw works best on a machine that stays on 24/7 — a desktop, Mac Mini, or a cheap VPS. On a laptop it pauses when you close the lid.</div>
+  </div>
+
+  <!-- INSTALL -->
+  <div id="sec-install" class="section">
+    <div class="section-header">
+      <h2>Install & setup</h2>
+      <p>One-time setup — takes about 5 minutes</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Install Node.js (if not already)</strong>
+          <p>Download from <strong class="hl">nodejs.org</strong> — version 22 or newer required.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Install OpenClaw via npm</strong>
+          <div class="cmd"><code>npm install -g openclaw@latest</code><button class="cmd-copy" onclick="copyCmd(this,'npm install -g openclaw@latest')">copy</button></div>
+          <p>Or with pnpm: <code>pnpm add -g openclaw@latest</code></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Run the onboarding wizard</strong>
+          <div class="cmd"><code>openclaw onboard --install-daemon</code><button class="cmd-copy" onclick="copyCmd(this,'openclaw onboard --install-daemon')">copy</button></div>
+          <p>This walks you through connecting your AI provider (API key) and messaging apps. The <code>--install-daemon</code> flag makes OpenClaw auto-start on every reboot.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Open the dashboard</strong>
+          <p>Go to <strong class="hl" style="color:var(--accent)">127.0.0.1:18789</strong> in your browser. Bookmark it for quick access!</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <strong>Add a channel</strong>
+          <p>Dashboard → Channels → Add Channel → follow setup for Telegram or WhatsApp.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sub-title">Dashboard sections explained</div>
+    <div class="table-wrap">
+      <table class="ref-table">
+        <tr><th>Section</th><th>What it does</th></tr>
+        <tr><td>Chat</td><td>Talk to your AI agent directly in the browser</td></tr>
+        <tr><td>Channels</td><td>Add/manage Telegram, WhatsApp, Discord, etc.</td></tr>
+        <tr><td>Agents</td><td>Configure AI model, API key, and behaviour</td></tr>
+        <tr><td>Instances</td><td>View running agent instances</td></tr>
+        <tr><td>Sessions</td><td>Browse past conversations</td></tr>
+        <tr><td>Overview</td><td>General stats and health status</td></tr>
+        <tr><td>Cron Jobs</td><td>Schedule automated recurring tasks</td></tr>
+        <tr><td>Usage</td><td>See how much API quota you've consumed</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TELEGRAM -->
+  <div id="sec-telegram" class="section">
+    <div class="section-header">
+      <h2>Telegram bot setup</h2>
+      <p>Easiest way to use OpenClaw from your phone</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Create a bot via BotFather</strong>
+          <p>Open Telegram → search <strong class="hl">@BotFather</strong> (must have ✅ blue verified tick) → type <code>/newbot</code> → give it a name (e.g. "My Assistant") → give it a username ending in "bot" (e.g. <code>myassistant_bot</code>) → copy the token it gives you.</p>
+          <div class="tip">Token looks like: <code>7483920156:AAFkdjsf83jdKSlfj39dLSKfjd83jdKS</code></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Add the bot to OpenClaw</strong>
+          <p>Dashboard → Channels → Add Channel → Telegram → paste the bot token → Save.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Approve yourself (security step)</strong>
+          <p>Message your bot <code>/start</code> — it will show your Telegram user ID. Run this in terminal (replace XXXXXXXX with your actual ID):</p>
+          <div class="cmd"><code>openclaw pairing approve telegram XXXXXXXX</code><button class="cmd-copy" onclick="copyCmd(this,'openclaw pairing approve telegram XXXXXXXX')">copy</button></div>
+          <p style="margin-top:6px">Or go to Dashboard → Instances → approve from there.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Start chatting!</strong>
+          <p>Type <code>/start</code> again in Telegram — it should reply. Then just talk to it naturally in plain language.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="warn">If BotFather blocks new bot creation: switch between WiFi and mobile data, wait 10–15 minutes and retry, or use a VPN temporarily just to create the bot.</div>
+
+    <div class="divider"></div>
+    <div class="sub-title">Regenerate token if needed</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:10px">BotFather → <code>/mybots</code> → select your bot → API Token → Regenerate. Paste the new token in OpenClaw Channels settings.</p>
+  </div>
+
+  <!-- WHATSAPP -->
+  <div id="sec-whatsapp" class="section">
+    <div class="section-header">
+      <h2>WhatsApp setup</h2>
+      <p>Links your real WhatsApp number via QR code scan</p>
+    </div>
+
+    <div class="warn">WhatsApp has no official free bot API. OpenClaw links your actual WhatsApp number using an unofficial method. Small risk of account restriction. You can run both Telegram and WhatsApp at the same time.</div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Open Channels in the dashboard</strong>
+          <p>Go to <code>127.0.0.1:18789</code> → Channels → Add Channel → WhatsApp</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Scan the QR code</strong>
+          <p>A QR code appears on screen. On your phone: <strong class="hl">WhatsApp → Settings → Linked Devices → Link a Device</strong> → scan the QR code.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Test it</strong>
+          <p>Send any message — OpenClaw should respond via WhatsApp.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip">Telegram is easier and safer. Use WhatsApp only if you specifically need it. Always keep Telegram running as a backup channel.</div>
+  </div>
+
+  <!-- API KEYS -->
+  <div id="sec-apikeys" class="section">
+    <div class="section-header">
+      <h2>Free API keys</h2>
+      <p>OpenClaw needs an AI provider key — here are all your free options</p>
+    </div>
+
+    <div class="api-grid">
+      <div class="api-card best">
+        <div style="margin-bottom:8px"><span class="badge badge-green">Best pick</span></div>
+        <div class="api-name">Groq</div>
+        <div class="api-url">console.groq.com</div>
+        <p>Fastest free tier, most generous limits. No credit card. Models: Llama3, Mixtral, Gemma.</p>
+      </div>
+      <div class="api-card">
+        <div style="margin-bottom:8px"><span class="badge badge-green">Free</span></div>
+        <div class="api-name">Google Gemini</div>
+        <div class="api-url">aistudio.google.com</div>
+        <p>Free with Google account. ~15 req/min limit. Can hit rate limits with heavy use.</p>
+      </div>
+      <div class="api-card">
+        <div style="margin-bottom:8px"><span class="badge badge-green">Free</span></div>
+        <div class="api-name">OpenRouter</div>
+        <div class="api-url">openrouter.ai</div>
+        <p>Access to many free models. Good backup option with generous limits.</p>
+      </div>
+      <div class="api-card">
+        <div style="margin-bottom:8px"><span class="badge badge-green">Free</span></div>
+        <div class="api-name">GitHub Models</div>
+        <div class="api-url">github.com/marketplace/models</div>
+        <p>Free with GitHub account. GPT-4o, Llama, Mistral. Already visible in your OpenClaw dropdown!</p>
+      </div>
+      <div class="api-card">
+        <div style="margin-bottom:8px"><span class="badge badge-green">Free</span></div>
+        <div class="api-name">Mistral</div>
+        <div class="api-url">console.mistral.ai</div>
+        <p>Simple free tier, no credit card required.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sub-title">How to replace an expired/broken API key</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Get a new key</strong><p>Go to your provider's website → create a new API key → copy it.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Update in dashboard</strong><p><code>127.0.0.1:18789</code> → Agents → your agent → find the API key field → paste new key → Save.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Restart</strong>
+          <div class="cmd"><code>openclaw restart</code><button class="cmd-copy" onclick="copyCmd(this,'openclaw restart')">copy</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="danger">If you see "auth_permanent issue" in logs — the key is permanently rejected. Get a brand new key from the provider's website, don't just regenerate the same one.</div>
+  </div>
+
+  <!-- USE CASES -->
+  <div id="sec-usecases" class="section">
+    <div class="section-header">
+      <h2>What can OpenClaw do?</h2>
+      <p>Describe what you want in plain language — no special commands needed</p>
+    </div>
+
+    <div class="uc-grid">
+      <div class="uc-card">
+        <div class="uc-icon">📧</div>
+        <strong>Email management</strong>
+        <p>"Summarize my unread emails" · "Draft a reply to John" · "Delete all newsletters"</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">🔍</div>
+        <strong>Web search</strong>
+        <p>"Latest AI news" · "Find cheap flights to Mumbai" · "What's the weather today?"</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">📅</div>
+        <strong>Calendar & reminders</strong>
+        <p>"Schedule a meeting tomorrow 3pm" · "Remind me at 6pm to call mom"</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">✍️</div>
+        <strong>Writing & drafts</strong>
+        <p>"Write a professional email to my boss" · "Translate this to Hindi" · "Summarize this"</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">💻</div>
+        <strong>Code & files</strong>
+        <p>"Read my todo.txt and summarize" · "Fix this Python error" · "Generate a script"</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">⚡</div>
+        <strong>Automation</strong>
+        <p>"Every morning at 8am send me news summary" · "When I get email from X, notify me"</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">🌐</div>
+        <strong>Browser control</strong>
+        <p>"Open YouTube and search Python tutorials" · "Log into my account and check balance"</p>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon">📊</div>
+        <strong>Research</strong>
+        <p>"Compare these two products" · "Summarize this PDF" · "Find reviews for this restaurant"</p>
+      </div>
+    </div>
+
+    <div class="tip">Be specific! Instead of "check email", say "check Gmail and tell me if there are any urgent unread emails from the last 24 hours". More detail = better results.</div>
+  </div>
+
+  <!-- COMMANDS -->
+  <div id="sec-commands" class="section">
+    <div class="section-header">
+      <h2>Terminal commands</h2>
+      <p>Every command you need to control OpenClaw</p>
+    </div>
+
+    <div class="sub-title">Start / stop / restart</div>
+    <div class="table-wrap" style="margin-bottom:20px">
+      <table class="ref-table">
+        <tr><th>Command</th><th>What it does</th></tr>
+        <tr><td>openclaw start</td><td>Start OpenClaw</td></tr>
+        <tr><td>openclaw stop</td><td>Stop OpenClaw</td></tr>
+        <tr><td>openclaw restart</td><td>Restart (use after changing API key or config)</td></tr>
+        <tr><td>openclaw status</td><td>Check if it's currently running</td></tr>
+        <tr><td>openclaw daemon start</td><td>Start the background daemon</td></tr>
+        <tr><td>openclaw daemon stop</td><td>Stop the background daemon</td></tr>
+        <tr><td>openclaw daemon uninstall</td><td>Remove from system startup / auto-boot</td></tr>
+      </table>
+    </div>
+
+    <div class="sub-title">Other useful commands</div>
+    <div class="table-wrap" style="margin-bottom:20px">
+      <table class="ref-table">
+        <tr><th>Command</th><th>What it does</th></tr>
+        <tr><td>openclaw logs --follow</td><td>Watch live logs in real time</td></tr>
+        <tr><td>openclaw config list</td><td>See all available config keys</td></tr>
+        <tr><td>openclaw pairing approve telegram ID</td><td>Approve a Telegram user by their ID</td></tr>
+      </table>
+    </div>
+
+    <div class="sub-title">Command history — save to file</div>
+    <div class="table-wrap" style="margin-bottom:20px">
+      <table class="ref-table">
+        <tr><th>System</th><th>View history</th><th>Save to Desktop</th></tr>
+        <tr><td style="font-family:var(--sans);color:var(--text2)">Windows CMD</td><td>doskey /history</td><td>doskey /history &gt; %USERPROFILE%\Desktop\cmds.txt</td></tr>
+        <tr><td style="font-family:var(--sans);color:var(--text2)">PowerShell</td><td>Get-History</td><td>Get-History | Out-File $env:USERPROFILE\Desktop\cmds.txt</td></tr>
+        <tr><td style="font-family:var(--sans);color:var(--text2)">Linux/Mac</td><td>history</td><td>history &gt; ~/Desktop/cmds.txt</td></tr>
+      </table>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sub-title">Emergency stop / full removal</div>
+    <div class="cmd"><code>openclaw stop</code><button class="cmd-copy" onclick="copyCmd(this,'openclaw stop')">copy</button></div>
+    <div class="cmd"><code>npm uninstall -g openclaw</code><button class="cmd-copy" onclick="copyCmd(this,'npm uninstall -g openclaw')">copy</button></div>
+    <div class="cmd"><code>rm -rf ~/.openclaw</code><button class="cmd-copy" onclick="copyCmd(this,'rm -rf ~/.openclaw')">copy</button></div>
+    <div class="warn">Windows: delete <code>C:\Users\YourName\.openclaw</code> folder manually. Also kill process in Task Manager (find <code>node.exe</code> → End Task). Finally, delete your API key from the provider's website — that's the ultimate kill switch.</div>
+  </div>
+
+  <!-- ERRORS -->
+  <div id="sec-errors" class="section">
+    <div class="section-header">
+      <h2>Errors & fixes</h2>
+      <p>Every error we hit — with exact solutions. Click to expand.</p>
+    </div>
+
+    <div class="err-item">
+      <div class="err-head" onclick="toggleErr(this)">
+        <div class="err-head-left"><span class="badge badge-red">401</span><span>Telegram Unauthorized — webhook/setMyCommands fail</span></div>
+        <div class="err-toggle">+</div>
+      </div>
+      <div class="err-body">
+        <div class="err-code">telegram deleteWebhook failed: Call to 'deleteWebhook' failed! (401: Unauthorized)<br>telegram setMyCommands failed: 401 Unauthorized</div>
+        <p><strong class="hl">Cause:</strong> Bot token is wrong, invalid, expired, or has extra spaces.<br><strong class="hl">Fix:</strong> BotFather → <code>/mybots</code> → your bot → Regenerate Token → paste it fresh in OpenClaw Channels settings. Make sure no spaces before/after token.</p>
+      </div>
+    </div>
+
+    <div class="err-item">
+      <div class="err-head" onclick="toggleErr(this)">
+        <div class="err-head-left"><span class="badge badge-amber">LIMIT</span><span>Gemini API rate limit reached</span></div>
+        <div class="err-toggle">+</div>
+      </div>
+      <div class="err-body">
+        <div class="err-code">API rate limit reached. Please try again later.<br>auto-restart attempt 4/10 in 42s</div>
+        <p><strong class="hl">Cause:</strong> Free Gemini tier allows ~15 requests/minute. You exceeded it.<br><strong class="hl">Fix:</strong> Wait 1–2 minutes (OpenClaw auto-retries up to 10 times). Or switch to Groq API for much better free limits.</p>
+      </div>
+    </div>
+
+    <div class="err-item">
+      <div class="err-head" onclick="toggleErr(this)">
+        <div class="err-head-left"><span class="badge badge-red">AUTH</span><span>Google auth_permanent failure — skipping all models</span></div>
+        <div class="err-toggle">+</div>
+      </div>
+      <div class="err-body">
+        <div class="err-code">Provider google has auth_permanent issue (skipping all models) (auth_permanent)</div>
+        <p><strong class="hl">Cause:</strong> API key is deleted, completely invalid, or expired. OpenClaw permanently stops trying Google.<br><strong class="hl">Fix:</strong> Get a brand new key from aistudio.google.com → update in Agents settings → run <code>openclaw restart</code>.</p>
+      </div>
+    </div>
+
+    <div class="err-item">
+      <div class="err-head" onclick="toggleErr(this)">
+        <div class="err-head-left"><span class="badge badge-amber">CONFIG</span><span>Config validation failed — Unrecognized key</span></div>
+        <div class="err-toggle">+</div>
+      </div>
+      <div class="err-body">
+        <div class="err-code">Config validation failed: &lt;root&gt;: Unrecognized key: "GOOGLE_API_KEY"</div>
+        <p><strong class="hl">Cause:</strong> Wrong config key name used in terminal command.<br><strong class="hl">Fix:</strong> Don't use terminal for API key updates. Use the dashboard: <code>127.0.0.1:18789</code> → Agents → your agent → update the key field directly. Or run <code>openclaw config list</code> to see all valid key names first.</p>
+      </div>
+    </div>
+
+    <div class="err-item">
+      <div class="err-head" onclick="toggleErr(this)">
+        <div class="err-head-left"><span class="badge badge-blue">ACCESS</span><span>"Access not configured" when messaging bot</span></div>
+        <div class="err-toggle">+</div>
+      </div>
+      <div class="err-body">
+        <div class="err-code">Access not configured. Your Telegram user ID: XXXXXXXX<br>Ask bot owner: openclaw pairing approve telegram XXXXXXXX</div>
+        <p><strong class="hl">Cause:</strong> This is a security feature — OpenClaw requires you to explicitly approve each user.<br><strong class="hl">Fix:</strong> Run <code>openclaw pairing approve telegram XXXXXXXX</code> in terminal with your actual ID. Then type <code>/start</code> again in Telegram.</p>
+      </div>
+    </div>
+
+    <div class="err-item">
+      <div class="err-head" onclick="toggleErr(this)">
+        <div class="err-head-left"><span class="badge badge-red">BLOCK</span><span>BotFather blocks new bot creation</span></div>
+        <div class="err-toggle">+</div>
+      </div>
+      <div class="err-body">
+        <p><strong class="hl">Cause:</strong> New Telegram account age restriction, too many attempts, or regional IP block.<br><strong class="hl">Fix options:</strong><br>· Wait 10–15 minutes and try again<br>· Switch between WiFi and mobile data (different IP)<br>· Use a VPN temporarily just to create the bot<br>· Use Discord or the web dashboard at 127.0.0.1:18789 instead</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <div id="sec-tips" class="section">
+    <div class="section-header">
+      <h2>Pro tips</h2>
+      <p>Things that make OpenClaw much easier to use daily</p>
+    </div>
+
+    <div class="card"><div class="card-title">📌 Bookmark the dashboard</div><p>Add <strong style="color:var(--accent)">127.0.0.1:18789</strong> to your browser bookmarks. You'll use it constantly for settings, logs, and debugging.</p></div>
+    <div class="card"><div class="card-title">⚡ Use Groq instead of Gemini</div><p>Groq's free tier is faster and has much better rate limits than Gemini. Get your key at <strong class="hl">console.groq.com</strong> — takes 2 minutes and no credit card needed.</p></div>
+    <div class="card"><div class="card-title">🔄 Keep Telegram as backup</div><p>Even after setting up WhatsApp, keep the Telegram bot running. If WhatsApp has issues, Telegram is always there as a fallback.</p></div>
+    <div class="card"><div class="card-title">🔑 API key = kill switch</div><p>If OpenClaw ever behaves unexpectedly, delete your API key from the provider's website. Without a valid key, it can't do anything — even if the process is still running.</p></div>
+    <div class="card"><div class="card-title">🎯 Be specific with requests</div><p>Instead of "check email", say "check Gmail and tell me if there are any urgent unread emails from the last 24 hours". More specific = much better results.</p></div>
+    <div class="card"><div class="card-title">🔁 Auto-start is on by default</div><p>If you installed with <code>--install-daemon</code>, OpenClaw starts automatically on every reboot. Just open the browser dashboard — no need to manually start it.</p></div>
+    <div class="card">
+      <div class="card-title">🔍 Watch live logs when debugging</div>
+      <div class="cmd" style="margin-top:8px"><code>openclaw logs --follow</code><button class="cmd-copy" onclick="copyCmd(this,'openclaw logs --follow')">copy</button></div>
+      <p style="margin-top:8px">Shows exactly what OpenClaw is doing in real time. Very helpful when something isn't working.</p>
+    </div>
+    <div class="card"><div class="card-title">💡 Phone vs browser</div><p>Use <strong class="hl">Telegram on your phone</strong> for daily chatting on the go. Use the <strong class="hl">browser dashboard</strong> when you want to change settings, check usage stats, or debug issues.</p></div>
+  </div>
+
+  <div class="footer">
+    Made with <span>♥</span> &nbsp;·&nbsp; OpenClaw v2026.3.13 &nbsp;·&nbsp; March 2026
+  </div>
+
+</div>
+
+<script>
+  function show(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function copyCmd(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+    }).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = 'copied!'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  function toggleErr(head) {
+    const body = head.nextElementSibling;
+    const toggle = head.querySelector('.err-toggle');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    toggle.classList.toggle('open', !isOpen);
+    toggle.textContent = isOpen ? '+' : '×';
+  }
+</script>
+</body>
+</html>
