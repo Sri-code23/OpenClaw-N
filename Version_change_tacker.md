@@ -2,8 +2,8 @@
 
 ```json
 {
-    "version": "3.0.0",
-    "Version_name":"Gamma",
-    "reason":"new feature added , trying to pull this to master from feature branch"
+    "version": "4.0.0",
+    "Version_name":"Delta",
+    "update":"added feature and delta version merge"
 }
 ```
